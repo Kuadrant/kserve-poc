@@ -125,6 +125,7 @@ metadata:
 spec:
   predictor:
     model:
+      args: ["--enable_docs_url=True"]
       modelFormat:
         name: sklearn
       protocolVersion: v2
