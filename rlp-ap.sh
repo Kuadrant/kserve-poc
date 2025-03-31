@@ -2,6 +2,18 @@
 
 # Pre-req: kserve-setup.sh
 
+echo "Waiting for kserve-ingress-gateway to obtain an address..."
+for i in {1..30}; do
+    GATEWAY_HOST=$(kubectl get gateway -n kserve kserve-ingress-gateway -o jsonpath='{.status.addresses[0].value}' 2>/dev/null || echo "")
+    if [ -n "$GATEWAY_HOST" ]; then
+        echo "Gateway host obtained: $GATEWAY_HOST"
+        break
+    else
+        echo "Not yet... waiting 10 seconds."
+        sleep 10
+    fi
+done
+
 echo "Applying RateLimitPolicy 'kserve-rlp'..."
 kubectl apply -f - <<EOF
 apiVersion: kuadrant.io/v1

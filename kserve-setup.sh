@@ -101,7 +101,7 @@ if [ -z "${GATEWAY_HOST:-}" ]; then
     exit 1
 fi
 
-echo "Upgrading KServe to v0.15.0-rc1..."
+echo "Configuring KServe v0.15.0 to set 'enableGatewayApi'..."
 helm upgrade kserve oci://ghcr.io/kserve/charts/kserve --version v0.15.0-rc1 --namespace kserve --create-namespace --wait \
   --set kserve.controller.gateway.ingressGateway.enableGatewayApi=true \
   --set kserve.controller.gateway.ingressGateway.kserveGateway=kserve/kserve-ingress-gateway \
