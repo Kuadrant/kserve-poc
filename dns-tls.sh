@@ -95,21 +95,21 @@ spec:
   gatewayClassName: envoy
   listeners:
     - name: http-predictor
-      hostname: "sklearn-v2-iris-tls-dns-predictor-default.$KSERVE_DOMAIN"
+      hostname: "sklearn-v2-iris-predictor-default.$KSERVE_DOMAIN"
       protocol: HTTP
       port: 80
       allowedRoutes:
         namespaces:
           from: All
     - name: http-default
-      hostname: "sklearn-v2-iris-tls-dns-default.$KSERVE_DOMAIN"
+      hostname: "sklearn-v2-iris-default.$KSERVE_DOMAIN"
       protocol: HTTP
       port: 80
       allowedRoutes:
         namespaces:
           from: All
     - name: https-predictor
-      hostname: "sklearn-v2-iris-tls-dns-predictor-default.$KSERVE_DOMAIN"
+      hostname: "sklearn-v2-iris-predictor-default.$KSERVE_DOMAIN"
       protocol: HTTPS
       port: 443
       tls:
@@ -122,7 +122,7 @@ spec:
         namespaces:
           from: All
     - name: https-default
-      hostname: "sklearn-v2-iris-tls-dns-default.$KSERVE_DOMAIN"
+      hostname: "sklearn-v2-iris-default.$KSERVE_DOMAIN"
       protocol: HTTPS
       port: 443
       tls:
@@ -144,7 +144,7 @@ kubectl apply -f - <<EOF
 apiVersion: "serving.kserve.io/v1beta1"
 kind: "InferenceService"
 metadata:
-  name: "sklearn-v2-iris-tls-dns"
+  name: "sklearn-v2-iris"
 spec:
   predictor:
     model:
@@ -157,15 +157,15 @@ spec:
 EOF
 
 echo "Waiting for the InferenceService..."
-kubectl wait inferenceservice sklearn-v2-iris-tls-dns \
+kubectl wait inferenceservice sklearn-v2-iris \
   --for=condition=Ready \
   --timeout=300s
 
 echo "Call Inference Predictor at IP $GATEWAY_HOST directly using https..."
-curl -v -k -H "Host: sklearn-v2-iris-tls-dns-predictor-default.$KSERVE_DOMAIN" \
+curl -v -k -H "Host: sklearn-v2-iris-predictor-default.$KSERVE_DOMAIN" \
      -H "Content-Type: application/json" \
-     https://"$GATEWAY_HOST"/v1/models/sklearn-v2-iris-tls-dns:predict -d @/tmp/iris-input.json
+     https://"$GATEWAY_HOST"/v1/models/sklearn-v2-iris:predict -d @/tmp/iris-input.json
 
-dig sklearn-v2-iris-tls-dns-predictor-default.$KSERVE_DOMAIN
+dig sklearn-v2-iris-predictor-default.$KSERVE_DOMAIN
 echo "If DNS is resolving, try curl via DNS using below command:"
-echo "curl -v -k -H \"Content-Type: application/json\" https://sklearn-v2-iris-tls-dns-predictor-default.$KSERVE_DOMAIN/v1/models/sklearn-v2-iris-tls-dns:predict -d @/tmp/iris-input.json"
+echo "curl -v -k -H \"Content-Type: application/json\" https://sklearn-v2-iris-predictor-default.$KSERVE_DOMAIN/v1/models/sklearn-v2-iris:predict -d @/tmp/iris-input.json"

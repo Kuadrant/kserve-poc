@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Pre-req: kserve-setup.sh
+# Pre-req: kserve-setup.sh or openshift.sh
 
 echo "Waiting for kserve-ingress-gateway to obtain an address..."
 for i in {1..30}; do
