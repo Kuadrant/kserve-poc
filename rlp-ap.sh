@@ -39,18 +39,14 @@ kubectl get ratelimitpolicy kserve-rlp -n kserve -o=jsonpath='{.status.condition
 echo ""
 
 echo "Starting a curl loop to test rate limiting (it will run for 20 seconds)..."
-(
-  while true; do 
-    curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
+START=$(date +%s)
+while [ $(($(date +%s) - START)) -lt 20 ]; do
+  curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
          -H "Content-Type: application/json" \
          http://"$GATEWAY_HOST"/v1/models/sklearn-v2-iris:predict -d @/tmp/iris-input.json
     echo ""
     sleep 3
-  done
-) &
-CURL_LOOP_PID=$!
-sleep 20
-kill $CURL_LOOP_PID
+done
 echo "Rate limiting test loop ended."
 
 echo "Applying RateLimitPolicy for HTTPRoute..."
@@ -77,18 +73,14 @@ kubectl get ratelimitpolicy kserve-override-rlp -n default -o=jsonpath='{.status
 echo ""
 
 echo "Starting a curl loop to test rate limiting (it will run for 20 seconds)..."
-(
-  while true; do 
-    curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
+START=$(date +%s)
+while [ $(($(date +%s) - START)) -lt 20 ]; do
+  curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
          -H "Content-Type: application/json" \
          http://"$GATEWAY_HOST"/v1/models/sklearn-v2-iris:predict -d @/tmp/iris-input.json
     echo ""
-    sleep 3
-  done
-) &
-CURL_LOOP_PID=$!
-sleep 20
-kill $CURL_LOOP_PID
+  sleep 3
+done
 echo "Rate limiting test loop ended."
 
 echo "Applying AuthPolicy 'kserve-auth' for Gateway..."
@@ -130,19 +122,14 @@ kubectl get AuthPolicy kserve-auth -n kserve -o=jsonpath='{.status.conditions[?(
 echo ""
 
 echo "Starting a curl loop to test auth fails (it will run for 20 seconds)..."
-(
-  while true; do 
-    curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
-        --write-out '%{http_code}\n' \
+START=$(date +%s)
+while [ $(($(date +%s) - START)) -lt 20 ]; do
+ curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
          -H "Content-Type: application/json" \
          http://"$GATEWAY_HOST"/v1/models/sklearn-v2-iris:predict -d @/tmp/iris-input.json
     echo ""
     sleep 3
-  done
-) &
-CURL_LOOP_PID=$!
-sleep 20
-kill $CURL_LOOP_PID
+done
 echo "Auth test loop ended."
 
 
@@ -217,35 +204,27 @@ kubectl get AuthPolicy kserve-override-auth -n default -o=jsonpath='{.status.con
 echo ""
 
 echo "Starting a curl loop to test auth fails with wrong API Key (it will run for 20 seconds)..."
-(
-  while true; do 
-    curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
+START=$(date +%s)
+while [ $(($(date +%s) - START)) -lt 20 ]; do
+  curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
          --write-out '%{http_code}\n' \
          --output /dev/null \
          -H "Content-Type: application/json" \
          -H 'Authorization: APIKEY IAMALICED' \
          http://"$GATEWAY_HOST"/v1/models/sklearn-v2-iris:predict -d @/tmp/iris-input.json
     sleep 2
-  done
-) &
-CURL_LOOP_PID=$!
-sleep 20
-kill $CURL_LOOP_PID
+done
 echo "Auth test loop ended."
 
 echo "Starting a curl loop to test auth succeeds with correct API Key (it will run for 20 seconds)..."
-(
-  while true; do 
-    curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
+START=$(date +%s)
+while [ $(($(date +%s) - START)) -lt 20 ]; do
+ curl -s -H "Host: sklearn-v2-iris-predictor-default.example.com" \
          --write-out '%{http_code}\n' \
          --output /dev/null \
          -H "Content-Type: application/json" \
          -H 'Authorization: APIKEY IAMALICE' \
          http://"$GATEWAY_HOST"/v1/models/sklearn-v2-iris:predict -d @/tmp/iris-input.json
     sleep 2
-  done
-) &
-CURL_LOOP_PID=$!
-sleep 20
-kill $CURL_LOOP_PID
+done
 echo "Auth test loop ended."
