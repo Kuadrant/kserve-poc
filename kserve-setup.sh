@@ -39,30 +39,6 @@ curl -s "https://raw.githubusercontent.com/kserve/kserve/release-0.15/hack/quick
 echo "Waiting for kserve-controller-manager to be ready..."
 kubectl rollout status deployment/kserve-controller-manager -n kserve --timeout=300s
 
-echo "Installing Envoy Gateway..."
-helm install eg oci://docker.io/envoyproxy/gateway-helm \
-  --version v1.3.2 \
-  -n envoy-gateway-system \
-  --create-namespace \
-  --set config.envoyGateway.extensionApis.enableEnvoyPatchPolicy=true # enable extensionApis
-
-echo "Waiting for Envoy Gateway to be ready..."
-if kubectl get pods -n envoy-gateway-system -l app=envoy-gateway >/dev/null 2>&1; then
-    kubectl wait --for=condition=Ready pod -n envoy-gateway-system --selector=app.kubernetes.io/instance=eg --timeout=300s
-else
-    echo "Could not find pods with label 'app=envoy-gateway'"
-fi
-
-echo "Create GatewayClass..."
-kubectl apply -f - <<EOF
-apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
-metadata:
-  name: envoy
-spec:
-  controllerName: gateway.envoyproxy.io/gatewayclass-controller
-EOF
-
 echo "Create Gateway..."
 kubectl apply -f - <<EOF
 apiVersion: gateway.networking.k8s.io/v1
@@ -71,7 +47,7 @@ metadata:
   name: kserve-ingress-gateway
   namespace: kserve
 spec:
-  gatewayClassName: envoy
+  gatewayClassName: istio
   listeners:
     - name: http
       protocol: HTTP
