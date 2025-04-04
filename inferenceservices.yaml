@@ -1,0 +1,54 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: huggingface-granite-guardian
+  namespace: default
+spec:
+  predictor:
+    model:
+      args:
+      - --model_name=granite-guardian
+      - --model_id=ibm-granite/granite-guardian-3.1-2b
+      - --dtype=half
+      - --max_model_len=8192
+      env:
+      - name: HF_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: HF_TOKEN
+            name: hf-secret
+            optional: false
+      modelFormat:
+        name: huggingface
+      name: ""
+      resources:
+        limits:
+          cpu: "4"
+          memory: 8Gi
+          nvidia.com/gpu: "1"
+        requests:
+          cpu: "1"
+          memory: 2Gi
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: huggingface-llm
+  namespace: default
+spec:
+  predictor:
+    model:
+      args:
+      - --model_name=llm
+      - --model_id=HuggingFaceTB/SmolLM-135M-Instruct
+      - --backend=huggingface
+      env:
+      - name: HF_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: HF_TOKEN
+            name: hf-secret
+      modelFormat:
+        name: huggingface
+      name: ""
+      resources: {}
