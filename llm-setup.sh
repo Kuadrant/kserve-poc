@@ -10,6 +10,8 @@ if [ -z "$HF_TOKEN" ]; then
     exit 1
 fi
 
+kubectl delete inferenceservice/huggingface-llm
+
 echo "Creating HuggingFace Secret ..."
 kubectl apply -f - <<EOF
 apiVersion: v1
@@ -37,13 +39,21 @@ spec:
       args:
         - --model_name=llm
         - --model_id=HuggingFaceTB/SmolLM-135M-Instruct
-        - --backend=huggingface
+        - --backend=vllm
+        - --dtype=float32
       env:
         - name: HF_TOKEN
           valueFrom:
             secretKeyRef:
               name: hf-secret
               key: HF_TOKEN
+      resources:
+        limits:
+          cpu: "2"
+          memory: "10Gi"
+        requests:
+          cpu: "1"
+          memory: "8Gi"
 EOF
 
 echo "Waiting for huggingface-llm InferenceService to be ready (this might take a while)..."
@@ -62,4 +72,4 @@ echo "Calling SmolLM LLM ..."
 curl -v http://$GATEWAY_HOST/openai/v1/completions \
   -H "content-type: application/json" \
   -H "Host: $SERVICE_HOSTNAME" \
-  -d '{"model": "llm", "prompt": "What is Kubernetes", "stream": false, "max_tokens": 50}'
+  -d '{"model": "llm", "prompt": "Tell me a fact about Ireland", "stream": false, "max_tokens": 50}'
