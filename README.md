@@ -18,10 +18,10 @@ This script automates the setup of a local KIND cluster, installs KServe (v0.15)
 
 Before running this script, ensure you have the following installed and configured:
 
-* **`kind`**: Kubernetes IN Docker
-* **`helm`**: The Kubernetes package manager
-* **`kubectl`**: The Kubernetes command-line tool
-* **`curl`**: Command-line tool for transferring data with URLs
+* **`kind`**
+* **`helm`**
+* **`kubectl`**
+* **`curl`**
 * **`cloud-provider-kind`**: This tool must be running in a separate terminal to provide LoadBalancer services (like an external IP for the Istio ingress gateway) for your KIND cluster.
     ```bash
     sudo cloud-provider-kind --enable-lb-port-mapping=true
@@ -71,7 +71,7 @@ The `kserve-setup.sh` script performs the following main actions:
 ### Expected Outcome & Verification
 
 * **KIND Cluster**: A KIND cluster named `kind` will be running.
-* **KServe**: KServe components (controller manager, etc.) will be running, mostly in the `kserve` namespace. Istio components should also be present (often in `istio-system`).
+* **KServe**: KServe components (controller manager, etc.) will be running, mostly in the `kserve` namespace. Istio components should also be present in `istio-system`.
 * **Gateway**: The `kserve-ingress-gateway` in the `kserve` namespace will have an external IP address (e.g., `172.18.x.x`).
 * **InferenceService**: The `sklearn-v2-iris` `InferenceService` will be deployed in the `default` namespace.
 * **Model Test**: The `curl` command to the `InferenceService` should succeed and return a JSON response with predictions:
@@ -310,6 +310,7 @@ This section describes deploying the `guardian-ext-proc` service, a custom Envoy
     ```
 
 4. **Run the `guardian-ext-proc` Docker Container**:
+    Note: if using a llm from outside the local cluster update the `GUARDIAN_URL` to point to the correct endpoint.
     ```bash
     docker run -e GUARDIAN_API_KEY=test -e GUARDIAN_URL=http://example.com -p 50051:50051 guardian-ext-proc
     ```
