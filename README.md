@@ -98,7 +98,7 @@ Once the script completes successfully:
 
 ## 2. LLM & Embedding Model Deployment
 
-This section describes deploying HuggingFace models on KServe for Large Language Model (LLM) functionalities and text embedding generation. It's recommended to run `llm-setup.sh` first, followed by `embedding-model-setup.sh`.
+This section describes deploying HuggingFace models on KServe for Large Language Model (LLM) functionalities and text embedding generation. It's recommended to run `llm-setup.sh` first, followed by `embedding-setup.sh`.
 
 ### Common Prerequisites
 
@@ -124,8 +124,8 @@ This section describes deploying HuggingFace models on KServe for Large Language
         ```
     * **For Embedding Model via `embedding-setup.sh`**:
         ```bash
-        chmod +x embedding-model-setup.sh
-        ./embedding-model-setup.sh
+        chmod +x embedding-setup.sh
+        ./embedding-setup.sh
         ```
 
 <details>
@@ -137,7 +137,7 @@ These scripts facilitate HuggingFace model deployment on KServe:
     * Create/Update the `hf-secret` Kubernetes secret.
 2.  **KServe Model Deployment & Testing**:
     * **`llm-setup.sh`**: Deploys an `InferenceService` `huggingface-llm` for text generation/completion using a `HuggingFaceTB/SmolLM-135M-Instruct` model.
-    * **`embedding-model-setup.sh`**: Deploys an `InferenceService` `embedding-model` for text embeddings.
+    * **`embedding-setup.sh`**: Deploys an `InferenceService` `embedding-model` for text embeddings.
     * Each script waits for its service to be ready, then performs a task-specific `curl` test.
 </details>
 
@@ -151,7 +151,7 @@ Semantic Caching stores and retrieves embeddings for text inputs, enabling effic
 
 * **`kserve-setup.sh` Completed**
 * **`llm-setup.sh` Completed** (for the LLM service to test with)
-* **`embedding-model-setup.sh` Completed** (for generating embeddings used by the cache)
+* **`embedding-setup.sh` Completed** (for generating embeddings used by the cache)
 * **Semantic Cache ext_proc Repository**: Clone or download from [jasonmadigan/semantic-cache-ext-proc](https://github.com/jasonmadigan/semantic-cache-ext-proc).
 
 ### Setup Steps
@@ -264,6 +264,8 @@ This section describes deploying the `guardian-ext-proc` service, a custom Envoy
 ### Setup Steps
 
 1. **Deploy the Guardian Inference Service**:
+
+    **IMPORTANT:** Only deploy the model if you have GPU capability in your kind cluster. Alternatively set the `GUARDIAN_URL` env var to a remote granite-guardian llm.  
     ```bash
     kubectl apply -f - <<EOF
     apiVersion: serving.kserve.io/v1beta1
